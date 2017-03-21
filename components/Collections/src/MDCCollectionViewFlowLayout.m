@@ -39,6 +39,7 @@ static const NSInteger kSupplementaryViewZIndex = 99;
   NSMutableIndexSet *_headerSections;
   NSMutableIndexSet *_footerSections;
   NSMutableDictionary *_decorationViewAttributeCache;
+  BOOL _isHidingFooterBackgrounds;
 }
 
 - (instancetype)init {
@@ -49,6 +50,7 @@ static const NSInteger kSupplementaryViewZIndex = 99;
     self.minimumInteritemSpacing = 0;
     self.scrollDirection = UICollectionViewScrollDirectionVertical;
     self.sectionInset = UIEdgeInsetsZero;
+    _isHidingFooterBackgrounds = NO;
 
     // Register decoration view for grid background.
     _decorationViewAttributeCache = [NSMutableDictionary dictionary];
@@ -116,7 +118,7 @@ static const NSInteger kSupplementaryViewZIndex = 99;
     [self invalidateLayout];
     return YES;
   }
-  return NO;
+  return _isHidingFooterBackgrounds;
 }
 
 - (void)invalidateLayout {
@@ -354,6 +356,9 @@ static const NSInteger kSupplementaryViewZIndex = 99;
 
   // Set cell background.
   attr.backgroundImage = [self.styler backgroundImageForCellLayoutAttributes:attr];
+  if (!_isHidingFooterBackgrounds && [attr.representedElementKind isEqualToString:UICollectionElementKindSectionFooter] && attr.backgroundImage == nil) {
+    _isHidingFooterBackgrounds = YES;
+  }
   attr.backgroundImageViewInsets =
       [self.styler backgroundImageViewOutsetsForCellWithAttribute:attr];
 
